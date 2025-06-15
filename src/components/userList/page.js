@@ -128,6 +128,11 @@ export default function UserList({ users }) {
               </div>
             </div>
           </Link>
+
+          <Link href={`/users/${user._id}/edit`} className="btn btn-outline-primary me-2">
+  Edit
+</Link>
+
         </div>
       ))}
     </div>
