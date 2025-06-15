@@ -1,3 +1,4 @@
+import { GET } from "@/app/api/users/route";
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 

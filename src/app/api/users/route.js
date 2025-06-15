@@ -1,6 +1,6 @@
 import dbConnect from "../../../_lib/dbConnection";
 import User from "../../../models/user";
-import { validationSchema } from "./validation";
+import { validationSchema } from "./schema";
 
 export async function GET(req) {
   try {
