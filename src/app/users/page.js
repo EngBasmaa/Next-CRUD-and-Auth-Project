@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import UserListWrapper from "../../components/UserListWrapper/page";
+import UserListWrapper from "@/components/UserListWrapper/page";
 import Loading from "../loading";
 
 export default function UsersPage() {
@@ -36,3 +36,13 @@ export default function UsersPage() {
     </div>
   );
 }
+
+// import UserListWrapper from "@/components/UserListWrapper/page";
+
+// export default function UsersPage() {
+//   return (
+//     <main className="container mt-5">
+//       <h1 className="mb-4">Users</h1>
+//     </main>
+//   );
+// }
