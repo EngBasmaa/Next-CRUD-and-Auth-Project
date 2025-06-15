@@ -1,0 +1,29 @@
+.wrapper {
+    background-color: var(--muted);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.code {
+    color: var(--primary);
+}
+
+.oops {
+    color: var(--secondary);
+    font-weight: bold;
+}
+
+.message {
+    color: var(--foreground);
+    margin-bottom: 1.5rem;
+}
+
+.button {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+}
