@@ -34,24 +34,24 @@ export async function getAllUsers() {
 
 export async function getUserById(id) {
   await dbConnection();
-  return User.findOne({ id: Number(id) });
+  if (!id) return null;
+  return User.findById(id).lean().exec();  // <-- هنا استخدمنا lean()
 }
+
 
 export async function addUser(newUser) {
   await dbConnection();
-  const lastUser = await User.findOne({}).sort({ id: -1 });
-  const newId = lastUser ? lastUser.id + 1 : 1;
-  const user = new User({ ...newUser, id: newId });
+  const user = new User(newUser);
   await user.save();
   return user;
 }
 
 export async function updateUser(id, updatedUser) {
   await dbConnection();
-  return User.findOneAndUpdate({ id: Number(id) }, updatedUser, { new: true });
+  return User.findByIdAndUpdate(id, updatedUser, { new: true }).exec();
 }
 
 export async function deleteUser(id) {
   await dbConnection();
-  return User.findOneAndDelete({ id: Number(id) });
+  return User.findByIdAndDelete(id).exec();
 }
