@@ -1,135 +1,98 @@
-
-
-
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { updateUser } from "@/_actions"; // استبدلي بالمسار الصحيح
 
 export default function EditUserForm({ user, userId }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: { city: "" },
-    company: { name: "" }
-  });
+  // حالة الصورة للمعاينة
+  const [imagePreview, setImagePreview] = useState(user.imageBase64 || "/uploads/client3.webp");
 
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        address: user.address || { city: "" },
-        company: user.company || { name: "" }
-      });
-    }
-  }, [user]);
+  // معالج تغيير الصورة
+  function handleImageChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const router = useRouter();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (["city", "country"].includes(name)) {
-      setFormData((prev) => ({
-        ...prev,
-        address: { ...prev.address, [name]: value }
-      }));
-    } else if (
-      ["name", "catchPhrase"].includes(name) &&
-      e.target.closest(".company")
-    ) {
-      setFormData((prev) => ({
-        ...prev,
-        company: { ...prev.company, [name]: value }
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const res = await fetch(`/api/users?id=${userId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
-    });
-
-    if (res.ok) {
-      router.push("/users");
-    } else {
-      alert("Failed to update user");
-    }
-  };
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result); // حدث المعاينة بالصورة الجديدة بصيغة base64
+    };
+    reader.readAsDataURL(file);
+  }
 
   return (
-    <div className="container py-5">
-    <h2>Edit User</h2>
-    <form onSubmit={handleSubmit} className="mt-4">
-      <div className="mb-3">
-        <label>Name</label>
-        <input
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          className="form-control"
-          required
-        />
-      </div>
+    <main className="container min-vh-100 d-flex justify-content-center align-items-center">
+      <div className="w-100" style={{ maxWidth: "600px" }}>
+        <h1 className="text-center mb-4 mt-3">Edit User</h1>
 
-      <div className="mb-3">
-        <label>Email</label>
-        <input
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className="form-control"
-          type="email"
-          required
-        />
-      </div>
+        <form
+          action={async formData => {
+            await updateUser(userId, formData);
+          }}
+          encType="multipart/form-data"
+          className="border rounded p-4 shadow"
+        >
+          {[
+            { name: "name", type: "text", required: true },
+            { name: "email", type: "email", required: true },
+            { name: "phone", type: "text" },
+            { name: "website", type: "text" },
+            { name: "city", type: "text" },
+            { name: "country", type: "text" },
+            { name: "companyName", type: "text" },
+            { name: "catchPhrase", type: "text" }
+          ].map(({ name, type, required }) => (
+            <div className="mb-3" key={name}>
+              <input
+                type={type}
+                name={name}
+                required={required}
+                placeholder={name[0].toUpperCase() + name.slice(1)}
+                className="form-control"
+                defaultValue={
+                  name === "companyName"
+                    ? user.company?.name || ""
+                    : name === "catchPhrase"
+                    ? user.company?.catchPhrase || ""
+                    : name === "city"
+                    ? user.address?.city || ""
+                    : name === "country"
+                    ? user.address?.country || ""
+                    : user[name] || ""
+                }
+              />
+            </div>
+          ))}
 
-      <div className="mb-3">
-        <label>Phone</label>
-        <input
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          className="form-control"
-          required
-        />
-      </div>
+          <div className="mb-3">
+            <label className="form-label">User Image</label>
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              className="form-control"
+              onChange={handleImageChange} // مهم: إضافة معالج تغيير الصورة
+            />
+          </div>
 
-      <div className="mb-3">
-        <label>City</label>
-        <input
-          name="city"
-          value={formData.address?.city || ""}
-          onChange={handleChange}
-          className="form-control"
-          required
-        />
-      </div>
+          <div className="mb-3 text-center">
+            <img
+              src={imagePreview}
+              alt="User Image Preview"
+              style={{ maxWidth: "150px", borderRadius: "10px" }}
+            />
+          </div>
 
-      <div className="mb-3">
-        <label>Company</label>
-        <input
-          name="company"
-          value={formData.company.name}
-          onChange={handleChange}
-          className="form-control"
-          required
-        />
+          <div className="text-center">
+            <button
+              type="submit"
+              className="btn px-4 py-2"
+              style={{ backgroundColor: "var(--primary)", color: "#fff" }}
+            >
+              Update User
+            </button>
+          </div>
+        </form>
       </div>
-
-      <button type="submit" className="btn btn-primary">
-        Update
-      </button>
-    </form>
-  </div>
+    </main>
   );
 }

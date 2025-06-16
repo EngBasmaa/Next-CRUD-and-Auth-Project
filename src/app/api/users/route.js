@@ -66,26 +66,31 @@ export async function POST(req) {
 export async function PUT(req) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
+  const data = await req.json();
 
-  if (!id) {
-    return Response.json({ message: "User ID is required" }, { status: 400 });
-  }
+  if (!id) return new Response("Missing id", { status: 400 });
+
+  // تحديث الحقول مع imageBase64
+  const updateData = {
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    website: data.website,
+    city: data.city,
+    country: data.country,
+    companyName: data.companyName,
+    catchPhrase: data.catchPhrase,
+    imageBase64: data.imageBase64 // الصورة الجديدة أو القديمة حسب حالة الفورم
+  };
 
   try {
-    const updatedUser = await req.json();
-    const user = await updateUser(id, updatedUser);
-
-    if (!user) {
-      return Response.json({ message: "User not found" }, { status: 404 });
-    }
-
-    return Response.json({ message: "User updated", user }, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return Response.json(
-      { message: "Error updating user", error: error.message },
-      { status: 500 }
-    );
+    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+      new: true
+    });
+    if (!updatedUser) return new Response("User not found", { status: 404 });
+    return new Response(JSON.stringify(updatedUser), { status: 200 });
+  } catch (err) {
+    return new Response(err.message, { status: 500 });
   }
 }
 
@@ -122,3 +127,38 @@ export async function DELETE(req) {
     });
   }
 }
+
+
+// export async function DELETE(req) {
+//   try {
+//     await dbConnect();
+
+//     const url = new URL(req.url);
+//     const id = url.searchParams.get("id");
+
+//     if (!id) {
+//       return new Response(JSON.stringify({ error: "ID is required" }), {
+//         status: 400,
+//       });
+//     }
+
+//     const deletedUser = await User.findByIdAndDelete(id);
+
+//     if (!deletedUser) {
+//       return new Response(JSON.stringify({ error: "User not found" }), {
+//         status: 404,
+//       });
+//     }
+
+//     return new Response(
+//       JSON.stringify({ message: "User deleted successfully" }),
+//       {
+//         status: 200,
+//       }
+//     );
+//   } catch (error) {
+//     return new Response(JSON.stringify({ error: error.message }), {
+//       status: 500,
+//     });
+//   }
+// }

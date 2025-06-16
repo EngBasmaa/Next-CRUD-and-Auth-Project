@@ -8,7 +8,7 @@ import { BiSolidBusiness } from "react-icons/bi";
 
 export default function UserPage() {
   const router = useRouter();
-  const pathname = usePathname(); // e.g. "/users/6423..."
+  const pathname = usePathname();
   const id = pathname.split("/").pop();
 
   const [user, setUser] = useState(null);
@@ -17,10 +17,25 @@ export default function UserPage() {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch(`/api/users?id=${id}`); // pass id as query param
+        const res = await fetch(`/api/users?id=${id}`);
         if (!res.ok) throw new Error("User not found");
 
         const data = await res.json();
+
+        // Replace empty or missing fields with null
+        data.name = data.name || null;
+        data.email = data.email || null;
+        data.phone = data.phone || null;
+        data.website = data.website || null;
+        data.address = {
+          city: data.address?.city || null,
+          country: data.address?.country || null,
+        };
+        data.company = {
+          name: data.company?.name || null,
+          catchPhrase: data.company?.catchPhrase || null,
+        };
+
         setUser(data);
       } catch {
         router.push("/users");
@@ -42,36 +57,76 @@ export default function UserPage() {
       </h2>
 
       <div
-        className="card mx-auto shadow-sm border-1"
-        style={{ maxWidth: "600px", backgroundColor: "var(--muted)", borderRadius: "12px" }}
+        className="d-flex justify-content-center gap-5"
+        style={{ maxWidth: "900px", margin: "0 auto", alignItems: "stretch" }}
       >
-        <div className="card-body p-4 text-muted">
-          <h4 className="fw-bold mb-4" style={{ color: "var(--primary)" }}>
-            <FaUser className="me-2" />
-            {user.name}
-          </h4>
+     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+  <img
+    src={user.imageBase64 || "/uploads/client3.webp"}
+    alt={user.name || "User Image"}
+    style={{
+      width: "380px",
+      height: "auto",
+      borderRadius: "12px",
+      objectFit: "cover",
+      boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+      flexShrink: 0,
+    }}
+  />
 
-          <p><strong style={{ color: "var(--secondary)" }}>Email:</strong> {user.email}</p>
-          <p><strong style={{ color: "var(--secondary)" }}>Phone:</strong> {user.phone}</p>
-          <p><strong style={{ color: "var(--secondary)" }}>Username:</strong> {user.username}</p>
-          <p><strong style={{ color: "var(--secondary)" }}>Website:</strong> {user.website}</p>
+  <Link href="/users" className="btn btn-secondary mt-4">
+    Back to Users
+  </Link>
+</div>
 
-          <hr className="my-3" />
+        <div
+          className="card shadow-sm border-1"
+          style={{
+            backgroundColor: "var(--muted)",
+            borderRadius: "12px",
+            flex: 1,
+            padding: "1.5rem",
+            overflowY: "auto",
+            maxHeight: "600px",
+          }}
+        >
+          <div className="card-body text-muted">
+            <h4 className="fw-bold mb-4" style={{ color: "var(--primary)" }}>
+              <FaUser className="me-2" />
+              {user.name ?? "null"}
+            </h4>
 
-          <p><strong style={{ color: "var(--secondary)" }}>City:</strong> {user.address?.city}</p>
-       
+            <p>
+              <strong style={{ color: "var(--secondary)" }}>Email:</strong> {user.email ?? "null"}
+            </p>
+            <p>
+              <strong style={{ color: "var(--secondary)" }}>Phone:</strong> {user.phone ?? "null"}
+            </p>
+            <p>
+              <strong style={{ color: "var(--secondary)" }}>Website:</strong> {user.website ?? "null"}
+            </p>
 
-          <hr className="my-3" />
+            <hr className="my-3" />
 
-          <h6 style={{ color: "var(--primary)" }}>
-            <BiSolidBusiness className="me-2" />
-            {user.company?.name}
-          </h6>
-          <p className="fst-italic">{user.company?.catchPhrase}</p>
+            <p>
+              <strong style={{ color: "var(--secondary)" }}>City:</strong> {user.address.city ?? "null"}
+              <br />
+              <strong style={{ color: "var(--secondary)" }}>Country:</strong> {user.address.country ?? "null"}
+            </p>
+
+            <hr className="my-3" />
+
+            <h6 style={{ color: "var(--primary)" }}>
+              <BiSolidBusiness className="me-2" />
+              {user.company.name ?? "null"}
+            </h6>
+            <p className="fst-italic">{user.company.catchPhrase ?? "null"}</p>
+          </div>
         </div>
+        
       </div>
 
-      <Link href="/users" className="btn btn-secondary mt-4">Back to Users</Link>
+     
     </div>
   );
 }
